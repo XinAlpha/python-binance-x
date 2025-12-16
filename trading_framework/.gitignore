@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Config with sensitive data
+config/config.yaml
+
+# Data
+data/
+*.csv
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
