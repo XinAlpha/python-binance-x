@@ -16,7 +16,6 @@ try:
     from binance.client import Client
     from utils.data_fetcher import DataFetcher
     from utils.logger import setup_logger
-    from strategies.ma_crossover_strategy import MACrossoverStrategy
     from backtest.backtest_engine import BacktestEngine
 
     print("✓ 所有模块导入成功")
@@ -44,12 +43,21 @@ try:
     print(f"初始资金: ${config['trading']['initial_capital']:,.0f}")
     print(f"回测时间: {config['backtest']['start_date']} 至 {config['backtest']['end_date']}")
     print(f"策略: {config['strategy']['name']}")
-    print(f"短期均线: {config['strategy']['params']['ma_short']}")
-    print(f"长期均线: {config['strategy']['params']['ma_long']}")
+    print(f"策略参数: {config['strategy']['params']}")
 
     # 初始化数据获取器（不需要API密钥获取历史数据）
     print(f"\n正在获取历史数据...")
-    data_fetcher = DataFetcher()
+    network_config = config.get('network', {})
+    proxy = network_config.get('proxy')
+    timeout = network_config.get('timeout', 30)
+
+    if proxy:
+        print(f"  使用代理: {proxy}")
+
+    data_fetcher = DataFetcher(
+        proxy=proxy,
+        timeout=timeout
+    )
 
     # 获取历史数据
     df = data_fetcher.get_historical_klines(
@@ -62,10 +70,46 @@ try:
     print(f"✓ 数据加载完成: {len(df)} 根K线")
     print(f"  时间范围: {df.index[0]} 至 {df.index[-1]}")
 
-    # 初始化策略
+    # 根据配置动态加载策略
     print(f"\n正在初始化策略...")
-    strategy = MACrossoverStrategy(config['strategy'])
-    print("✓ 策略初始化完成")
+    strategy_name = config['strategy']['name']
+
+    # 策略映射
+    strategy_map = {
+        'ma_crossover': 'MACrossoverStrategy',
+        'rsi': 'RSIStrategy',
+        'bollinger_bands': 'BollingerBandsStrategy',
+        'grid_trading': 'GridTradingStrategy',
+        'macd': 'MACDStrategy',
+        'breakout_pullback': 'BreakoutPullbackStrategy'
+    }
+
+    if strategy_name not in strategy_map:
+        raise ValueError(f"未知策略: {strategy_name}. 可用策略: {list(strategy_map.keys())}")
+
+    # 动态导入策略
+    strategy_class_name = strategy_map[strategy_name]
+
+    if strategy_name == 'ma_crossover':
+        from strategies.ma_crossover_strategy import MACrossoverStrategy
+        strategy = MACrossoverStrategy(config['strategy'])
+    elif strategy_name == 'rsi':
+        from strategies.rsi_strategy import RSIStrategy
+        strategy = RSIStrategy(config['strategy'])
+    elif strategy_name == 'bollinger_bands':
+        from strategies.bollinger_bands_strategy import BollingerBandsStrategy
+        strategy = BollingerBandsStrategy(config['strategy'])
+    elif strategy_name == 'grid_trading':
+        from strategies.grid_trading_strategy import GridTradingStrategy
+        strategy = GridTradingStrategy(config['strategy'])
+    elif strategy_name == 'macd':
+        from strategies.macd_strategy import MACDStrategy
+        strategy = MACDStrategy(config['strategy'])
+    elif strategy_name == 'breakout_pullback':
+        from strategies.breakout_pullback_strategy import BreakoutPullbackStrategy
+        strategy = BreakoutPullbackStrategy(config['strategy'])
+
+    print(f"✓ 策略初始化完成: {strategy_class_name}")
 
     # 初始化回测引擎
     print(f"\n正在运行回测...")

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class DataFetcher:
     """币安数据获取器"""
 
-    def __init__(self, api_key=None, api_secret=None, testnet=False):
+    def __init__(self, api_key=None, api_secret=None, testnet=False, proxy=None, timeout=30):
         """
         初始化数据获取器
 
@@ -20,9 +20,27 @@ class DataFetcher:
             api_key: API密钥 (获取公开数据时可为None)
             api_secret: API密钥 (获取公开数据时可为None)
             testnet: 是否使用测试网
+            proxy: 代理地址，如 'http://127.0.0.1:7890' (可选)
+            timeout: 连接超时时间(秒)，默认30秒
         """
-        self.client = Client(api_key, api_secret, testnet=testnet)
-        logger.info(f"DataFetcher initialized (testnet={testnet})")
+        # 构建请求参数
+        requests_params = {'timeout': timeout}
+
+        # 如果提供了代理，添加到请求参数
+        if proxy:
+            requests_params['proxies'] = {
+                'http': proxy,
+                'https': proxy
+            }
+            logger.info(f"Using proxy: {proxy}")
+
+        self.client = Client(
+            api_key,
+            api_secret,
+            testnet=testnet,
+            requests_params=requests_params
+        )
+        logger.info(f"DataFetcher initialized (testnet={testnet}, timeout={timeout}s)")
 
     def get_historical_klines(self, symbol, interval, start_str, end_str=None, limit=1000):
         """

@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from utils.data_fetcher import DataFetcher
 from utils.logger import setup_logger
-from strategies.ma_crossover_strategy import MACrossoverStrategy
+from utils.strategy_loader import load_strategy
 from backtest.backtest_engine import BacktestEngine
 from live_trading.live_executor import LiveExecutor
 from binance.client import Client
@@ -31,7 +31,11 @@ def run_backtest(config):
     print("=" * 60 + "\n")
 
     # 初始化数据获取器(回测不需要API密钥)
-    data_fetcher = DataFetcher()
+    network_config = config.get('network', {})
+    data_fetcher = DataFetcher(
+        proxy=network_config.get('proxy'),
+        timeout=network_config.get('timeout', 30)
+    )
 
     # 获取历史数据
     print(f"Fetching historical data for {config['trading']['symbol']}...")
@@ -45,7 +49,7 @@ def run_backtest(config):
     print(f"Data loaded: {len(df)} candles from {df.index[0]} to {df.index[-1]}")
 
     # 初始化策略
-    strategy = MACrossoverStrategy(config['strategy'])
+    strategy = load_strategy(config['strategy'])
 
     # 初始化回测引擎
     backtest_engine = BacktestEngine(strategy, config)
@@ -73,14 +77,17 @@ def run_live_trading(config):
     print(f"\nPress Ctrl+C to stop\n")
 
     # 初始化数据获取器
+    network_config = config.get('network', {})
     data_fetcher = DataFetcher(
         api_key=config['api']['api_key'],
         api_secret=config['api']['api_secret'],
-        testnet=config['api']['testnet']
+        testnet=config['api']['testnet'],
+        proxy=network_config.get('proxy'),
+        timeout=network_config.get('timeout', 30)
     )
 
     # 初始化策略
-    strategy = MACrossoverStrategy(config['strategy'])
+    strategy = load_strategy(config['strategy'])
 
     # 初始化实盘执行器
     executor = LiveExecutor(strategy, config, data_fetcher)
@@ -95,10 +102,13 @@ def get_account_info(config):
     print("ACCOUNT INFORMATION".center(60))
     print("=" * 60 + "\n")
 
+    network_config = config.get('network', {})
     data_fetcher = DataFetcher(
         api_key=config['api']['api_key'],
         api_secret=config['api']['api_secret'],
-        testnet=config['api']['testnet']
+        testnet=config['api']['testnet'],
+        proxy=network_config.get('proxy'),
+        timeout=network_config.get('timeout', 30)
     )
 
     # 获取余额
