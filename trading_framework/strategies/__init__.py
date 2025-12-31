@@ -5,6 +5,7 @@ from .bollinger_bands_strategy import BollingerBandsStrategy
 from .grid_trading_strategy import GridTradingStrategy
 from .macd_strategy import MACDStrategy
 from .breakout_pullback_strategy import BreakoutPullbackStrategy
+from .momentum_dip_buying_strategy import MomentumDipBuyingStrategy
 
 __all__ = [
     'BaseStrategy',
@@ -13,5 +14,6 @@ __all__ = [
     'BollingerBandsStrategy',
     'GridTradingStrategy',
     'MACDStrategy',
-    'BreakoutPullbackStrategy'
+    'BreakoutPullbackStrategy',
+    'MomentumDipBuyingStrategy'
 ]

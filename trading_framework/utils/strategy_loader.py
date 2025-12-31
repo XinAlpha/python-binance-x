@@ -29,7 +29,8 @@ def load_strategy(config):
         'bollinger_bands': ('strategies.bollinger_bands_strategy', 'BollingerBandsStrategy'),
         'grid_trading': ('strategies.grid_trading_strategy', 'GridTradingStrategy'),
         'macd': ('strategies.macd_strategy', 'MACDStrategy'),
-        'breakout_pullback': ('strategies.breakout_pullback_strategy', 'BreakoutPullbackStrategy')
+        'breakout_pullback': ('strategies.breakout_pullback_strategy', 'BreakoutPullbackStrategy'),
+        'momentum_dip_buying': ('strategies.momentum_dip_buying_strategy', 'MomentumDipBuyingStrategy')
     }
 
     if strategy_name not in strategy_map:
@@ -52,6 +53,8 @@ def load_strategy(config):
             from strategies.macd_strategy import MACDStrategy as StrategyClass
         elif strategy_name == 'breakout_pullback':
             from strategies.breakout_pullback_strategy import BreakoutPullbackStrategy as StrategyClass
+        elif strategy_name == 'momentum_dip_buying':
+            from strategies.momentum_dip_buying_strategy import MomentumDipBuyingStrategy as StrategyClass
 
         # 创建策略实例
         strategy = StrategyClass(config)

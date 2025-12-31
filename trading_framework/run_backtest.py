@@ -22,7 +22,9 @@ try:
 
     # 加载配置
     print("\n正在加载配置...")
-    with open('config/config.yaml', 'r', encoding='utf-8') as f:
+    # 使用脚本所在目录的相对路径
+    config_path = Path(__file__).parent / 'config' / 'config.yaml'
+    with open(config_path, 'r', encoding='utf-8') as f:
         config = yaml.safe_load(f)
     print("✓ 配置加载成功")
 

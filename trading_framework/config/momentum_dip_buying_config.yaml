@@ -1,0 +1,62 @@
+# 动量回踩加仓策略配置文件
+
+# API配置
+api:
+  api_key: "your_api_key_here"
+  api_secret: "your_api_secret_here"
+  testnet: true  # true: 使用测试网, false: 实盘
+
+# 网络配置（可选）
+network:
+  proxy: null  # 代理地址，如 "http://127.0.0.1:7890"
+  timeout: 60  # 连接超时时间(秒)
+
+# 交易配置
+trading:
+  symbol: "BTCUSDT"
+  interval: "5m"  # 必须使用5分钟K线！
+  position_mode: "HEDGE"
+  leverage: 10  # 杠杆倍数（策略内部会使用2倍杠杆）
+
+  # 资金管理
+  initial_capital: 10000
+  max_position_size: 1.0  # 策略会分两次开仓，每次50%
+  risk_per_trade: 0.05  # 每笔风险5%（本策略风险较高）
+
+# 策略配置 - 动量回踩加仓策略
+strategy:
+  name: "momentum_dip_buying"
+  params:
+    # 快速涨幅阈值（5%）
+    pump_threshold: 0.05
+
+    # 回调阈值（3%）
+    dip_threshold: 0.03
+
+    # 止盈目标（5%）
+    profit_target: 0.05
+
+    # 首次开仓比例（50%）
+    position_1_ratio: 0.5
+
+    # 杠杆倍数（2倍）
+    leverage_multiplier: 2
+
+# 回测配置
+backtest:
+  start_date: "2024-01-01"
+  end_date: "2024-12-01"
+  commission: 0.0004  # 手续费0.04%
+  slippage: 0.0002  # 滑点0.02%（快速交易滑点较大）
+
+# 实盘配置
+live_trading:
+  check_interval: 10  # 5分钟K线，每10秒检查一次
+  max_retries: 3
+  order_timeout: 30
+
+# 日志配置
+logging:
+  level: "INFO"
+  file: "logs/momentum_dip_buying.log"
+  console: true
